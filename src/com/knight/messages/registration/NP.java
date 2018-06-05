@@ -1,7 +1,23 @@
 package com.knight.messages.registration;
 
 public class NP {
-	String userId, salesValue, incomeValue, purchaseValue, expenseValue, directExpense, indirectExpense, netProfit, updatededBy;
+	String userId, salesValue, incomeValue, purchaseValue, expenseValue, directExpense, indirectExpense, netProfit, updatededBy, quarter, year;
+
+	public String getQuarter() {
+		return quarter;
+	}
+
+	public void setQuarter(String quarter) {
+		this.quarter = quarter;
+	}
+
+	public String getYear() {
+		return year;
+	}
+
+	public void setYear(String year) {
+		this.year = year;
+	}
 
 	public String getUpdatededBy() {
 		return updatededBy;

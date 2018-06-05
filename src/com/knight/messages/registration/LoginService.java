@@ -1,6 +1,7 @@
 package com.knight.messages.registration;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 import javax.ws.rs.Consumes;
@@ -29,20 +30,24 @@ public class LoginService {
 			Connection dbConnection = connection.getConnection();
 			if(dbConnection != null) {
 				Statement statement = dbConnection.createStatement();
-				 String sql = "UPDATE " + ConstantValues.registrationTable +
-		                   "SET age = 30 WHERE id in (100, 101)";
-				 statement.executeUpdate(sql);
+				String sql = "select userid from " + ConstantValues.lgnTable + " where userid = '" + login.getId() + "' and userid_dwp = '" + login.getPwd() + "'";
+				ResultSet restultSet = statement.executeQuery(sql);
+				if(restultSet != null){
+					
+				}
 				resultJson.put("code", ConstantValues.successCode);
 				resultJson.put("message", "Authenticated successfully");
 				statement.close();
 				dbConnection.close();
 				return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
 			} else {
-				resultJson.put(ConstantValues.errorCode, "Unable to connect database");
+				resultJson.put("code", ConstantValues.errorCode);
+				resultJson.put("message", "Unable to connect database");
 				return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
 			}			
 		} catch(Exception e){
-			resultJson.put(ConstantValues.exceptionCode, e.toString());
+			resultJson.put("code", ConstantValues.exceptionCode);
+			resultJson.put("message", e.toString());
 			return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
 		}
 	}
@@ -53,7 +58,7 @@ public class LoginService {
 	public Response mailSend(){
 		JSONObject resultJson = new JSONObject();
 		SendMail mail = new SendMail();
-		resultJson.put("response", mail.sendMail("bhargav4366@gmail.com", "testing"));
+		resultJson.put("response", mail.sendMail("bhargav4366@gmail.com", "testing","got the mail hurrayyyy"));
 		return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
 	}
 

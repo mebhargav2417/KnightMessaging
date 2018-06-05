@@ -9,6 +9,7 @@ public class ConstantValues {
 	public static final String NetProfitTable = "net_profit";
 	public static final String ReturnStatusTable = "return_status";
 	public static final String BlankFieldTable = "blank_fields";
+	public static final String TAFRegForEmployee = "login_taf";
 	
 	public static final String userIdIndividual = "IND";
 	public static final String usreIdOther = "CUS";
@@ -16,4 +17,5 @@ public class ConstantValues {
 	public static final String successCode = "100";
 	public static final String errorCode = "101";
 	public static final String exceptionCode = "102";
+	public static final String emptyDataCode = "103";  // no data available but query successfully executed
 }

@@ -59,11 +59,13 @@ public class ViewUserDataService {
 				dbConnection.close();
 				return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
 			} else {
-				resultJson.put(ConstantValues.errorCode, "Unable to connect database");
+				resultJson.put("code", ConstantValues.errorCode);
+				resultJson.put("message", "Unable to connect database");
 				return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
 			}
 		} catch(Exception e){
-			resultJson.put(ConstantValues.exceptionCode, e.toString());
+			resultJson.put("code", ConstantValues.exceptionCode);
+			resultJson.put("message", e.toString());
 			return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
 
 		}

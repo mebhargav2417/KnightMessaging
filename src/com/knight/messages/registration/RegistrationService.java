@@ -19,6 +19,7 @@ import org.json.simple.JSONObject;
 
 import com.knight.messages.dbconnection.ConnectToDatabase;
 import com.knight.messages.other.ConstantValues;
+import com.knight.messages.other.SendMail;
 import com.knight.messages.registration.Registration;
 
 
@@ -36,6 +37,7 @@ public class RegistrationService {
 			Connection dbConnection = connection.getConnection();
 			if(dbConnection != null) {
 				Statement statement = dbConnection.createStatement();
+				dbConnection.setAutoCommit(false);
 				if(registration.getBusinessType().equalsIgnoreCase("individual")) {
 					userId = ConstantValues.userIdIndividual;
 				} else {
@@ -87,16 +89,21 @@ public class RegistrationService {
 						+ registration.getStreet() + "','" + registration.getCity() +"','"+ registration.getState() +"','" + registration.getPincode() +"','"
 						+ registration.getEnabled() +"')";
 				statement.executeUpdate(insertQuery);
+				String serviceQuery = "insert into " + ConstantValues.serviceTable + " values ( '" + userId + "','yes','" + registration.getMail() + "','no','no','no','no','no','no','no','no','no','"+registration.getCreatedBy()+"','"+new java.sql.Date(cal.getTimeInMillis())+"')" ;
+				statement.executeUpdate(serviceQuery);	
+				String pwd = userId;
+				String loginQuery = "insert into " + ConstantValues.lgnTable + " values ( '" + userId + "','" + pwd + "','" + new java.sql.Date(cal.getTimeInMillis()) + "','" 
+						+ new java.sql.Date(cal.getTimeInMillis()) + "','yes','" + registration.getMail() + "')";
+				statement.executeUpdate(loginQuery);
+				statement.close();
+				dbConnection.commit();
+				dbConnection.close();
 				resultJson.put("code", ConstantValues.successCode);
 				resultJson.put("message", "Registration success");
 				resultJson.put("userId", userId);
-				String serviceQuery = "insert into " + ConstantValues.serviceTable + " values ( '" + userId + "','yes','" + registration.getMail() + "','no','no','no','no','no','no','no','no','no','',''" ;
-				statement.executeUpdate(serviceQuery);
-				statement.close();
-				dbConnection.close();
+				SendMail mail = new SendMail();
+				mail.sendMail(registration.getMail(), "Registration success","Hi,\n\t You have been successfully registered with user id: " + userId);
 				return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
-				//				return Response.status(201).entity(result).build();
-
 			} else {
 				resultJson.put("code", ConstantValues.errorCode);
 				resultJson.put("message", "Unable to connect to database");
@@ -119,9 +126,13 @@ public class RegistrationService {
 			Connection dbConnection = connection.getConnection();
 			if(dbConnection != null) {
 				Statement statement = dbConnection.createStatement();
-				 String sql = "UPDATE " + ConstantValues.registrationTable +
+				dbConnection.setAutoCommit(false);
+				String sql = "UPDATE " + ConstantValues.registrationTable +
 		                   "SET age = 30 WHERE id in (100, 101)";
-				 statement.executeUpdate(sql);
+				statement.executeUpdate(sql);
+				dbConnection.commit();
+				statement.close();
+				dbConnection.close();
 				resultJson.put("code", ConstantValues.successCode);
 				resultJson.put("message", "Data updated successfully");
 				return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
@@ -132,20 +143,50 @@ public class RegistrationService {
 		} catch(Exception e){
 			resultJson.put(ConstantValues.exceptionCode, e.toString());
 			return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
-
 		}
 	}
 	
 	@POST
-	@Path("/updateServices")
+	@Path("/disableUser")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateUser(TAFServices tafServices){
+	public Response disableUSer(Id id){
 		JSONObject resultJson = new JSONObject();
 		try{
 			ConnectToDatabase connection = new ConnectToDatabase();
 			Connection dbConnection = connection.getConnection();
 			if(dbConnection != null) {
 				Statement statement = dbConnection.createStatement();
+				dbConnection.setAutoCommit(false);
+				String sql = "UPDATE " + ConstantValues.registrationTable +
+		                   "SET enabled = 'no' WHERE userid = " + "'" + id.getUserId()  + "'";
+				statement.executeUpdate(sql);
+				dbConnection.commit();
+				statement.close();
+				dbConnection.close();
+				resultJson.put("code", ConstantValues.successCode);
+				resultJson.put("message", "User deleted successfully");
+				return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
+			} else {
+				resultJson.put(ConstantValues.errorCode, "Unable to connect database");
+				return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
+			}			
+		} catch(Exception e){
+			resultJson.put(ConstantValues.exceptionCode, e.toString());
+			return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
+		}
+	}
+	
+	@POST
+	@Path("/updateServices")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateUser(TAF tafServices){
+		JSONObject resultJson = new JSONObject();
+		try{
+			ConnectToDatabase connection = new ConnectToDatabase();
+			Connection dbConnection = connection.getConnection();
+			if(dbConnection != null) {
+				Statement statement = dbConnection.createStatement();
+				dbConnection.setAutoCommit(false);
 				Calendar cal = Calendar.getInstance();
 				 String sql = "UPDATE " + ConstantValues.serviceTable +
 		                   "SET accounting_services = '" +tafServices.getAccountingServices()+ "', account_and_audit_services = '" + tafServices.getAccountngAndAuditServices()+ "',"
@@ -153,6 +194,9 @@ public class RegistrationService {
 		                   				+ "account_audit_and_gst = '" +tafServices.getAccountingAuditGstService()+ "', financial_advisory = '" +tafServices.getFinancialAdvisory()+ "', tds_service = '" +tafServices.getTdsService()+ "',"
 		                   						+ " payroll_service = '" +tafServices.getPayrollService()+ "',updated_by = '" +tafServices.getCreatedBy()+"', ='" +new java.sql.Date(cal.getTimeInMillis())+ "' WHERE user_id='" +tafServices.getUserId()+"'";
 				statement.executeUpdate(sql);
+				dbConnection.commit();
+				statement.close();
+				dbConnection.close();
 				resultJson.put("code", ConstantValues.successCode);
 				resultJson.put("message", "Services updated successfully");
 				return Response.ok(resultJson, MediaType.APPLICATION_JSON).build();
