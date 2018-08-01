@@ -19,8 +19,6 @@ public class SendMail {
 	public String sendMail(String toEmail, String subject, String body){
 		String response = "";
 		try {
-			//final String fromEmail = "asktaf@outlook.com"; //requires valid gmail id
-			//final String password = "n2bv2222"; // correct password for gmail id
 			String fromEmail, password;
 			Properties prop = new Properties();
 			String propFileName = "config.properties";
